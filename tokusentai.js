@@ -17,10 +17,11 @@ var disabled = 0
 const msg = [
   {
     trigger: message => {
-      if (franc(message) === 'und') {
+      var francMessage = franc(message)
+      if (francMessage === 'und') {
         return ['cmn', 'kor', 'jpn', 'rus'].indexOf(franc(`${message} ${message} ${message} ${message} ${message} ${message} ${message} ${message} ${message} ${message}`)) > -1
       }
-      return ['cmn', 'kor', 'jpn', 'rus'].indexOf(franc(message)) > -1
+      return ['cmn', 'kor', 'jpn', 'rus'].indexOf(francMessage) > -1
     },
     response: message => {
       return translate(message, {to: 'no'})
@@ -81,24 +82,18 @@ const msg = [
   },
   {
     trigger: message => {
-      if (message.indexOf('weed') > -1) {
-        if (message.indexOf('video') > -1) {
-          return (Math.floor(Math.random() * 10) + 1) === 5
-        }
-        return (Math.floor(Math.random() * 25) + 1) === 5
-      }
       return (Math.floor(Math.random() * 100) + 1) === 5
     },
     response: message => {
       return new Promise(resolve => {
-        resolve(youtube[(message.length % youtube.length)])
+        resolve(youtube[(Math.floor(Math.random() * youtube.length) + 1)])
       })
     },
     type: SEND
   },
   {
     trigger: message => {
-      return message === '<@368684667399962625> hold kjeft'
+      return message === `<@${process.env.CLIENT_IT}> hold kjeft`
     },
     response: message => {
       disabled = 1
@@ -110,7 +105,18 @@ const msg = [
   },
   {
     trigger: message => {
-      return message.indexOf('<@368684667399962625>') > -1
+      return message === `<@${process.env.CLIENT_IT}> github`
+    },
+    response: message => {
+      return new Promise(resolve => {
+        resolve('https://github.com/Markussss/tokusentai bare å klone og endre og sende pull requests kompis')
+      })
+    },
+    type: REPLY
+  },
+  {
+    trigger: message => {
+      return message.indexOf(`<@${process.env.CLIENT_IT}>`) > -1
     },
     response: message => {
       disabled = 0
