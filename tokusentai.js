@@ -258,12 +258,12 @@ client.on('ready', () => {
       response: 'ins|ins dd'
     },
     {
-      trigger: 'ins',
-      response: 'ok'
+      trigger: 'ins dd',
+      response: 'ins dd'
     },
     {
-      trigger: 'ins dd',
-      response: 'ins'
+      trigger: 'ins',
+      response: 'ok'
     },
     {
       trigger: `${emojis.nani}`,
@@ -299,14 +299,11 @@ client.on('message', message => {
       msg.response(message.content)
       .then(reply => {
         if (disabled === 0 || disabled === 1) {
-          if (msg.responseType === REPLY) {
-            message.channel.send(`${message.author} ${reply}`)
-          } else if (msg.responseType === SEND) {
-            message.channel.send(reply)
-          } else {
-            throw new Error('msg[' + i + '] does not have a responseType property, or the specified responseType property is not supported')
-          }
           if (disabled === 1) disabled = 2
+          if (msg.responseType === REPLY) {
+            reply = `${message.author} ${reply}`
+          }
+          return message.channel.send(reply)
         }
         msg.lastSentAt = now
       })
@@ -326,6 +323,9 @@ client.setInterval(() => {
       .then(reply => {
         if (disabled === 0 || disabled === 1) {
           lastChannel.send(reply)
+          .catch(error => {
+            console.log(error)
+          })
         }
         if (disabled === 1) disabled = 2
       })
