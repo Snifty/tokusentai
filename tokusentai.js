@@ -21,6 +21,7 @@ var lastChannel
 
 var simpleMsgReply = []
 var simpleMsg = []
+var reactions = []
 
 const msg = [
   {
@@ -82,7 +83,7 @@ const msg = [
     triggerType: MESSAGE,
     responseType: SEND,
     lastSentAt: 0,
-    timeout: 3000
+    timeout: 30000
   },
   {
     trigger: message => {
@@ -101,20 +102,20 @@ const msg = [
     lastSentAt: 0,
     timeout: 3000
   },
-  {
-    trigger: () => {
-      return (Math.floor(Math.random() * 500) + 1) === 5
-    },
-    response: () => {
-      return new Promise(resolve => {
-        resolve(youtube[(Math.floor(Math.random() * youtube.length))])
-      })
-    },
-    triggerType: TIME,
-    responseType: SEND,
-    lastSentAt: (new Date()).getTime(),
-    timeout: 3600000
-  },
+  // {
+  //   trigger: () => {
+  //     return (Math.floor(Math.random() * 1000) + 1) === 5
+  //   },
+  //   response: () => {
+  //     return new Promise(resolve => {
+  //       resolve(youtube[(Math.floor(Math.random() * youtube.length))])
+  //     })
+  //   },
+  //   triggerType: TIME,
+  //   responseType: SEND,
+  //   lastSentAt: (new Date()).getTime(),
+  //   timeout: 7200000
+  // },
   {
     trigger: message => {
       let date = new Date()
