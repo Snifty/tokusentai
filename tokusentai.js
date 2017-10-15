@@ -5,14 +5,19 @@ const franc = require('franc')
 const translate = require('google-translate-api')
 
 const client = new Discord.Client()
+const REPLY = 0
+const SEND = 1
+
+const MESSAGE = 0
+const TIME = 1
+const INTERVAL = 5000
+
+var disabled = 0 // 0 => not disabled, 1 => will disable after this message, 2 => disabled
+var now
 
 var emojis = {}
 var lastChannel
-
 var youtube = []
-const REPLY = 0
-const SEND = 1
-var disabled = 0
 
 const msg = [
   {
@@ -35,7 +40,10 @@ const msg = [
         })
       })
     },
-    type: REPLY
+    triggerType: MESSAGE,
+    responseType: REPLY,
+    lastSentAt: 0,
+    timeout: 3000
   },
   {
     trigger: message => {
@@ -44,7 +52,8 @@ const msg = [
         message.toLowerCase().indexOf('grr') > -1 ||
         message.toLowerCase().indexOf('jesus fucking christ') > -1 ||
         (
-          ((message.length - message.replace(/[A-ZÆØÅ]/, '').length) / message.length) > 0.2
+          (((message.length - message.replace(/[A-ZÆØÅ]/, '').length) / message.length) > 0.2) &&
+          message.length > 10
         )
       )
     },
@@ -53,7 +62,10 @@ const msg = [
         resolve('Tell til ti, kompis. :slight_smile:')
       })
     },
-    type: REPLY
+    triggerType: MESSAGE,
+    responseType: REPLY,
+    lastSentAt: 0,
+    timeout: 30000
   },
   {
     trigger: message => {
@@ -64,7 +76,10 @@ const msg = [
         resolve(`Fitte ${emojis.yeye}`)
       })
     },
-    type: SEND
+    triggerType: MESSAGE,
+    responseType: SEND,
+    lastSentAt: 0,
+    timeout: 3000
   },
   {
     trigger: message => {
@@ -78,22 +93,50 @@ const msg = [
         resolve(`weed ${emojis.yeye}\nweeb ${emojis.nono}`)
       })
     },
-    type: SEND
+    responseType: SEND,
+    triggerType: MESSAGE,
+    lastSentAt: 0,
+    timeout: 3000
   },
   {
-    trigger: message => {
-      return (Math.floor(Math.random() * 100) + 1) === 5
+    trigger: () => {
+      return (Math.floor(Math.random() * 500) + 1) === 5
     },
-    response: message => {
+    response: () => {
       return new Promise(resolve => {
         resolve(youtube[(Math.floor(Math.random() * youtube.length) + 1)])
       })
     },
-    type: SEND
+    triggerType: TIME,
+    responseType: SEND,
+    lastSentAt: 0,
+    timeout: 1800000
   },
   {
     trigger: message => {
-      return message === `<@${process.env.CLIENT_IT}> hold kjeft`
+      let date = new Date()
+      return (
+        date.getHours() >= 6 &&
+        date.getHours() < 12 &&
+        (
+          message.toLowerCase() === 'gm' ||
+          message.toLowerCase() === `<@${process.env.CLIENT_ID}> gm`
+        )
+      )
+    },
+    response: () => {
+      return new Promise(resolve => {
+        resolve('gm')
+      })
+    },
+    triggerType: MESSAGE,
+    responseType: SEND,
+    lastSentAt: 0,
+    timeout: 3600000
+  },
+  {
+    trigger: message => {
+      return message === `<@${process.env.CLIENT_ID}> hold kjeft`
     },
     response: message => {
       disabled = 1
@@ -101,22 +144,28 @@ const msg = [
         resolve('oki brosjan')
       })
     },
-    type: REPLY
+    triggerType: MESSAGE,
+    responseType: REPLY,
+    lastSentAt: 0,
+    timeout: 3000
   },
   {
     trigger: message => {
-      return message === `<@${process.env.CLIENT_IT}> github`
+      return message === `<@${process.env.CLIENT_ID}> github`
     },
     response: message => {
       return new Promise(resolve => {
         resolve('https://github.com/Markussss/tokusentai bare å klone og endre og sende pull requests kompis')
       })
     },
-    type: REPLY
+    triggerType: MESSAGE,
+    responseType: REPLY,
+    lastSentAt: 0,
+    timeout: 3000
   },
   {
     trigger: message => {
-      return message.indexOf(`<@${process.env.CLIENT_IT}>`) > -1
+      return message.indexOf(`<@${process.env.CLIENT_ID}>`) > -1
     },
     response: message => {
       disabled = 0
@@ -124,7 +173,10 @@ const msg = [
         resolve('hey')
       })
     },
-    type: REPLY
+    triggerType: MESSAGE,
+    responseType: REPLY,
+    lastSentAt: 0,
+    timeout: 3000
   }
 ]
 
@@ -165,22 +217,29 @@ client.on('ready', () => {
 
 client.on('message', message => {
   console.log(`${message.author.username}: ${message.content}`)
+  now = (new Date()).getTime()
   lastChannel = message.channel
   if (message.author.bot) return
-  msg.some((cur, i) => {
-    if (cur.trigger(message.content)) {
-      cur.response(message.content)
+  msg.filter(msg => {
+    return (
+      msg.triggerType === MESSAGE &&
+      msg.lastSentAt + msg.timeout <= now
+    )
+  }).some((msg, i) => {
+    if (msg.trigger(message.content)) {
+      msg.response(message.content)
       .then(reply => {
         if (disabled === 0 || disabled === 1) {
-          if (cur.type === REPLY) {
+          if (msg.responseType === REPLY) {
             message.reply(reply)
-          } else if (cur.type === SEND) {
+          } else if (msg.responseType === SEND) {
             message.channel.send(reply)
           } else {
-            throw new Error('msg[' + i + '] does not have a type property, or the specified type property is not supported')
+            throw new Error('msg[' + i + '] does not have a responseType property, or the specified responseType property is not supported')
           }
           if (disabled === 1) disabled = 2
         }
+        msg.lastSentAt = now
       })
       .catch(error => {
         console.log(error)
@@ -189,6 +248,21 @@ client.on('message', message => {
     }
   })
 })
+
+client.setInterval(() => {
+  if (!lastChannel) return
+  msg.filter(msg => msg.triggerType === TIME).some((msg, i) => {
+    if (msg.trigger()) {
+      msg.response()
+      .then(reply => {
+        if (disabled === 0 || disabled === 1) {
+          lastChannel.send(reply)
+        }
+        if (disabled === 1) disabled = 2
+      })
+    }
+  })
+}, INTERVAL)
 
 client.login(process.env.TOKEN)
 
