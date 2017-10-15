@@ -16,8 +16,11 @@ var disabled = 0 // 0 => not disabled, 1 => will disable after this message, 2 =
 var now
 
 var emojis = {}
-var lastChannel
 var youtube = []
+var lastChannel
+
+var simpleMsgReply = []
+var simpleMsg = []
 
 const msg = [
   {
@@ -104,13 +107,13 @@ const msg = [
     },
     response: () => {
       return new Promise(resolve => {
-        resolve(youtube[(Math.floor(Math.random() * youtube.length) + 1)])
+        resolve(youtube[(Math.floor(Math.random() * youtube.length))])
       })
     },
     triggerType: TIME,
     responseType: SEND,
-    lastSentAt: 0,
-    timeout: 1800000
+    lastSentAt: (new Date()).getTime(),
+    timeout: 3600000
   },
   {
     trigger: message => {
@@ -169,12 +172,37 @@ const msg = [
     },
     response: message => {
       disabled = 0
+      console.log(message)
       return new Promise(resolve => {
-        resolve('hey')
+        var response = (simpleMsgReply.filter(msg => message.toLowerCase().indexOf(msg.trigger) > -1)[0] || {response: 'hey'}).response
+        if (response.length) {
+          response = response.split('|')
+          response = response[[(Math.floor(Math.random() * response.length))]]
+        }
+        resolve(response)
       })
     },
     triggerType: MESSAGE,
     responseType: REPLY,
+    lastSentAt: 0,
+    timeout: 3000
+  },
+  {
+    trigger: message => {
+      return simpleMsg.filter(msg => message.toLowerCase().trim() === msg.trigger).length === 1
+    },
+    response: message => {
+      return new Promise(resolve => {
+        var response = (simpleMsg.filter(msg => message.toLowerCase().indexOf(msg.trigger) > -1)[0] || {response: `${emojis.nani}`}).response
+        if (response.length) {
+          response = response.split('|')
+          response = response[[(Math.floor(Math.random() * response.length))]]
+        }
+        resolve(response)
+      })
+    },
+    triggerType: MESSAGE,
+    responseType: SEND,
     lastSentAt: 0,
     timeout: 3000
   }
@@ -213,6 +241,46 @@ client.on('ready', () => {
     `https://www.youtube.com/watch?v=sifVwz5Nguc ${emojis.weed} ${emojis.weed} ${emojis.weed}`,
     `https://www.youtube.com/watch?v=o2TO5atI4rU ${emojis.weed} ${emojis.weed} ${emojis.weed}`
   ]
+
+  simpleMsgReply = [
+    // simple message-to-response mapping, all messages has to be prefixed with @bot (in chat) / <@${process.env.CLIENT_ID}> (in code)
+    {
+      trigger: 'hey',
+      response: 'hey|hei|hallo'
+    },
+    {
+      trigger: 'nice',
+      response: 'takk|ye'
+    },
+    {
+      trigger: 'jp',
+      response: 'ins|ins dd'
+    },
+    {
+      trigger: 'ins',
+      response: 'ok'
+    },
+    {
+      trigger: 'ins dd',
+      response: 'ins'
+    },
+    {
+      trigger: `${emojis.nani}`,
+      response: `${emojis.nani}`
+    }
+  ]
+
+  simpleMsg = [
+    // simple message-to-response mapping, compares trigger to all messages, but will only react if the message is exactly the same as the trigger
+    {
+      trigger: `${emojis.nani}`,
+      response: `${emojis.nani}`
+    },
+    {
+      trigger: 'hey kara',
+      response: 'hey kar'
+    }
+  ]
 })
 
 client.on('message', message => {
@@ -231,7 +299,7 @@ client.on('message', message => {
       .then(reply => {
         if (disabled === 0 || disabled === 1) {
           if (msg.responseType === REPLY) {
-            message.reply(reply)
+            message.channel.send(`${message.author} ${reply}`)
           } else if (msg.responseType === SEND) {
             message.channel.send(reply)
           } else {
