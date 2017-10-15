@@ -10,10 +10,10 @@ const SEND = 1
 
 const MESSAGE = 0
 const TIME = 1
-const INTERVAL = 5000
+const INTERVAL = 60000
 
 var disabled = 0 // 0 => not disabled, 1 => will disable after this message, 2 => disabled
-var now
+var now = (new Date()).getTime()
 
 var emojis = {}
 var youtube = []
@@ -24,6 +24,20 @@ var simpleMsg = []
 var reactions = []
 
 const msg = [
+  {
+    trigger: () => {
+      return (Math.floor(Math.random() * 1440) + 1) === 42
+    },
+    response: message => {
+      return new Promise(resolve => {
+        resolve('<@!132867430937526272> leve du')
+      })
+    },
+    triggerType: TIME,
+    responseType: SEND,
+    lastSentAt: now,
+    timeout: 86400000
+  },
   {
     trigger: message => {
       var francMessage = franc(message)
