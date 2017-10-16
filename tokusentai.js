@@ -23,6 +23,7 @@ var simpleMsgReply = []
 var simpleMsg = []
 var reactions = []
 
+
 const msg = [
   {
     trigger: () => {
@@ -68,7 +69,7 @@ const msg = [
       return (
         message.indexOf('REE') > -1 ||
         message.toLowerCase().indexOf('grr') > -1 ||
-        message.toLowerCase().indexOf('jesus fucking christ') > -1 ||
+        message.toLowerCase().indexOf('jesus fucking christ') > -1 
         (
           (((message.length - message.replace(/[A-ZÆØÅ]/, '').length) / message.length) > 0.2) &&
           message.length > 10
@@ -154,6 +155,41 @@ const msg = [
   },
   {
     trigger: message => {
+      let date = new Date()
+      return (
+        date.getHours() == 4 &&
+        date.getMinutes() == 20 ||
+        date.getHours() == 16 &&
+        date.getMinutes() == 20
+      )
+    },
+    response: () => {
+      return new Promise(resolve => {
+        message.toLowerCase() === '${emojis.yeye} ${emojis.weed}' &&
+        message.messageReactionAdd('${emojis.weed}') ||
+        message.toLowerCase() === `elska hars ${emojis.weed}` &&
+        message.messageReactionAdd('${emojis.weed}') ||
+        message.toLowerCase() === `Smoke Weed Everyday ${emojis.weed}` &&
+        message.messageReactionAdd('${emojis.weed}') ||
+        message.toLowerCase() === `fitte penga hars ${emojis.weed}` &&
+        message.messageReactionAdd('${emojis.weed}') 
+        
+        //reaction to all msg during h4m20/h16m20
+        client.on('message', message => {
+          message.messageReactionAdd('${emojis.weed}');
+          message.messageReactionAdd(':four:');
+          message.messageReactionAdd(':two:');
+          message.messageReactionAdd(':zero:');
+        });
+      })
+    },
+    triggerType: MESSAGE,
+    responseType: SEND,
+    lastSentAt: 0,
+    timeout: 3600000
+  },
+  {
+    trigger: message => {
       return message === `<@${process.env.CLIENT_ID}> hold kjeft`
     },
     response: message => {
@@ -222,6 +258,7 @@ const msg = [
     timeout: 3000
   }
 ]
+
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`)
@@ -295,6 +332,10 @@ client.on('ready', () => {
       trigger: 'hey kara',
       response: 'hey kar'
     }
+  ]
+
+  reactions = [
+
   ]
 })
 
