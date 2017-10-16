@@ -3,7 +3,8 @@ simple Discord chat bot lmao
 
 based on [discord.js](https://discord.js.org)
 
-i prefer using [standardjs](https://standardjs.com) when writing javascript. i usually fix all errors my linter gives me.
+i prefer using [standardjs](https://standardjs.com) when writing javascript. 
+
 to set up your own developing environment do this:
   1. `git clone https://github.com/Markussss/tokusentai`
   2. create a copy of `.env_example` named and name it `.env`
