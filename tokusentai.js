@@ -23,6 +23,7 @@ var simpleMsgReply = []
 var simpleMsg = []
 var reactions = []
 
+
 const msg = [
   {
     trigger: message => {
@@ -150,10 +151,18 @@ const msg = [
     },
     response: () => {
       return new Promise(resolve => {
-        message.toLowerCase() === '${emojis.yeye} ${emojis.weed}' ||
-        message.toLowerCase() === `elska hars ${emojis.weed}` ||
-        message.toLowerCase() === `Smoke Weed Everyday ${emojis.weed}` ||
-        message.toLowerCase() === `fitte penga hars ${emojis.weed}` 
+        message.toLowerCase() === '${emojis.yeye} ${emojis.weed}' &&
+        message.messageReactionAdd('${emojis.weed}') ||
+        message.toLowerCase() === `elska hars ${emojis.weed}` &&
+        message.messageReactionAdd('${emojis.weed}') ||
+        message.toLowerCase() === `Smoke Weed Everyday ${emojis.weed}` &&
+        message.messageReactionAdd('${emojis.weed}') ||
+        message.toLowerCase() === `fitte penga hars ${emojis.weed}` &&
+        message.messageReactionAdd('${emojis.weed}') 
+        
+        client.on('message', message => {
+          message.messageReactionAdd('${emojis.weed}');
+        });
       })
     },
     triggerType: MESSAGE,
@@ -161,7 +170,6 @@ const msg = [
     lastSentAt: 0,
     timeout: 3600000
   },
-  //add reaction to all messages :yeye::weed: during 4:20 or 16:20
   {
     trigger: message => {
       return message === `<@${process.env.CLIENT_ID}> hold kjeft`
@@ -306,6 +314,10 @@ client.on('ready', () => {
       trigger: 'hey kara',
       response: 'hey kar'
     }
+  ]
+
+  reactions = [
+
   ]
 })
 
