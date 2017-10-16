@@ -54,7 +54,7 @@ const msg = [
       return (
         message.indexOf('REE') > -1 ||
         message.toLowerCase().indexOf('grr') > -1 ||
-        message.toLowerCase().indexOf('jesus fucking christ') > -1 ||
+        message.toLowerCase().indexOf('jesus fucking christ') > -1 
         (
           (((message.length - message.replace(/[A-ZÆØÅ]/, '').length) / message.length) > 0.2) &&
           message.length > 10
@@ -140,6 +140,30 @@ const msg = [
   },
   {
     trigger: message => {
+      let date = new Date()
+      return (
+        date.getHours() == 4 &&
+        date.getMinutes() == 20 ||
+        date.getHours() == 16 &&
+        date.getMinutes() == 20
+      )
+    },
+    response: () => {
+      return new Promise(resolve => {
+        message.toLowerCase() === '${emojis.yeye} ${emojis.weed}' ||
+        message.toLowerCase() === `elska hars ${emojis.weed}` ||
+        message.toLowerCase() === `Smoke Weed Everyday ${emojis.weed}` ||
+        message.toLowerCase() === `fitte penga hars ${emojis.weed}` 
+      })
+    },
+    triggerType: MESSAGE,
+    responseType: SEND,
+    lastSentAt: 0,
+    timeout: 3600000
+  },
+  //add reaction to all messages :yeye::weed: during 4:20 or 16:20
+  {
+    trigger: message => {
       return message === `<@${process.env.CLIENT_ID}> hold kjeft`
     },
     response: message => {
@@ -208,6 +232,7 @@ const msg = [
     timeout: 3000
   }
 ]
+
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`)
