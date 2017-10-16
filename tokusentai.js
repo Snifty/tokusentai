@@ -160,8 +160,12 @@ const msg = [
         message.toLowerCase() === `fitte penga hars ${emojis.weed}` &&
         message.messageReactionAdd('${emojis.weed}') 
         
+        //reaction to all msg during h4m20/h16m20
         client.on('message', message => {
           message.messageReactionAdd('${emojis.weed}');
+          message.messageReactionAdd(':four:');
+          message.messageReactionAdd(':two:');
+          message.messageReactionAdd(':zero:');
         });
       })
     },
