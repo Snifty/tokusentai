@@ -396,8 +396,15 @@ client.on('ready', () => {
     },
     {
       trigger: 'he lokt',
-      //suggestion:
       response: 'i tissn etter å ha ha ronka'
+    },
+    {
+      trigger: 'runescape',
+      response: 'Bad Game! Run! Escape!'
+    },
+    {
+      trigger: 'he lokt',
+      response: 'lokt i tissn'
     }
   ]
 
