@@ -7,13 +7,14 @@ const translate = require('google-translate-api')
 const client = new Discord.Client()
 const REPLY = 0
 const SEND = 1
+const REACT = 2
 
 const MESSAGE = 0
 const TIME = 1
-const INTERVAL = 5000
+const INTERVAL = 60000
 
 var disabled = 0 // 0 => not disabled, 1 => will disable after this message, 2 => disabled
-var now
+var now = (new Date()).getTime()
 
 var emojis = {}
 var youtube = []
@@ -23,8 +24,22 @@ var simpleMsgReply = []
 var simpleMsg = []
 var reactions = []
 
-
 const msg = [
+  {
+    trigger: () => {
+      return (Math.floor(Math.random() * 1000) + 1) === 42
+    },
+    response: message => {
+      message = message.content
+      return new Promise(resolve => {
+        resolve('<@!132867430937526272> leve du')
+      })
+    },
+    triggerType: MESSAGE,
+    responseType: SEND,
+    lastSentAt: now,
+    timeout: 80000000
+  },
   {
     trigger: message => {
       var francMessage = franc(message)
@@ -34,6 +49,7 @@ const msg = [
       return ['cmn', 'kor', 'jpn', 'rus'].indexOf(francMessage) > -1
     },
     response: message => {
+      message = message.content
       return translate(message, {to: 'no'})
       .then(function (response) {
         return new Promise(function (resolve, reject) {
@@ -54,15 +70,17 @@ const msg = [
     trigger: message => {
       return (
         message.indexOf('REE') > -1 ||
+        message.indexOf('FAEN') < -1 ||
         message.toLowerCase().indexOf('grr') > -1 ||
-        message.toLowerCase().indexOf('jesus fucking christ') > -1 
+        message.toLowerCase().indexOf('jesus fucking christ') > -1 ||
         (
-          (((message.length - message.replace(/[A-ZÆØÅ]/, '').length) / message.length) > 0.2) &&
+          (((message.length - message.replace(/[A-ZÆØÅ]/, '').length) / message.length) > 0.45) &&
           message.length > 10
         )
       )
     },
     response: message => {
+      message = message.content
       return new Promise(resolve => {
         resolve('Tell til ti, kompis. :slight_smile:')
       })
@@ -77,8 +95,33 @@ const msg = [
       return message.toLowerCase().indexOf('fitte') > -1
     },
     response: message => {
+      message = message.content
       return new Promise(resolve => {
         resolve(`Fitte ${emojis.yeye}`)
+      })
+    },
+    triggerType: MESSAGE,
+    responseType: SEND,
+    lastSentAt: 0,
+    timeout: 30000
+  },
+  {
+    //mb this fit more here
+    trigger: message => {
+      return (
+        message.toLowerCase().indexOf('runescape') > -1 ||
+        message.toLowerCase().indexOf(' rs ') > -1 ||
+        message.toLowerCase().indexOf(' rs') > -1 ||
+        message.toLowerCase().indexOf(' osrs ') > -1 ||
+        message.toLowerCase().indexOf(' osrs') > -1 ||
+        message.toLowerCase().indexOf(' rs3 ') > -1 ||
+        message.toLowerCase().indexOf(' rs3') > -1 
+      )
+      },
+    response: message => {
+      message = message.content
+      return new Promise(resolve => {
+        resolve(`Bad Game! Run! Escape!`)
       })
     },
     triggerType: MESSAGE,
@@ -94,6 +137,7 @@ const msg = [
       )
     },
     response: message => {
+      message = message.content
       return new Promise(resolve => {
         resolve(`weed ${emojis.yeye}\nweeb ${emojis.nono}`)
       })
@@ -103,20 +147,6 @@ const msg = [
     lastSentAt: 0,
     timeout: 3000
   },
-  // {
-  //   trigger: () => {
-  //     return (Math.floor(Math.random() * 1000) + 1) === 5
-  //   },
-  //   response: () => {
-  //     return new Promise(resolve => {
-  //       resolve(youtube[(Math.floor(Math.random() * youtube.length))])
-  //     })
-  //   },
-  //   triggerType: TIME,
-  //   responseType: SEND,
-  //   lastSentAt: (new Date()).getTime(),
-  //   timeout: 7200000
-  // },
   {
     trigger: message => {
       let date = new Date()
@@ -143,42 +173,37 @@ const msg = [
     trigger: message => {
       let date = new Date()
       return (
-        date.getHours() == 4 &&
-        date.getMinutes() == 20 ||
-        date.getHours() == 16 &&
-        date.getMinutes() == 20
+        (date.getHours() === 4 && date.getMinutes() === 20) ||
+        (date.getHours() === 16 && date.getMinutes() === 20)
       )
     },
-    response: () => {
-      return new Promise(resolve => {
-        message.toLowerCase() === '${emojis.yeye} ${emojis.weed}' &&
-        message.messageReactionAdd('${emojis.weed}') ||
-        message.toLowerCase() === `elska hars ${emojis.weed}` &&
-        message.messageReactionAdd('${emojis.weed}') ||
-        message.toLowerCase() === `Smoke Weed Everyday ${emojis.weed}` &&
-        message.messageReactionAdd('${emojis.weed}') ||
-        message.toLowerCase() === `fitte penga hars ${emojis.weed}` &&
-        message.messageReactionAdd('${emojis.weed}') 
-        
-        //reaction to all msg during h4m20/h16m20
-        client.on('message', message => {
-          message.messageReactionAdd('${emojis.weed}');
-          message.messageReactionAdd(':four:');
-          message.messageReactionAdd(':two:');
-          message.messageReactionAdd(':zero:');
-        });
+    response: message => {
+      return message.react(emojis.weed)
+      .then(() => {
+        return message.react(emojis.four)
+      })
+      .then(() => {
+        return message.react(emojis.two)
+      })
+      .then(() => {
+        return message.react(emojis.zero)
+      }).then(() => {
+        return new Promise(resolve => {
+          resolve({})
+        })
       })
     },
     triggerType: MESSAGE,
     responseType: SEND,
     lastSentAt: 0,
-    timeout: 3600000
+    timeout: 3000
   },
   {
     trigger: message => {
       return message === `<@${process.env.CLIENT_ID}> hold kjeft`
     },
     response: message => {
+      message = message.content
       disabled = 1
       return new Promise(resolve => {
         resolve('oki brosjan')
@@ -194,6 +219,7 @@ const msg = [
       return message === `<@${process.env.CLIENT_ID}> github`
     },
     response: message => {
+      message = message.content
       return new Promise(resolve => {
         resolve('https://github.com/Markussss/tokusentai bare å klone og endre og sende pull requests kompis')
       })
@@ -208,6 +234,7 @@ const msg = [
       return message.indexOf(`<@${process.env.CLIENT_ID}>`) > -1
     },
     response: message => {
+      message = message.content
       disabled = 0
       console.log(message)
       return new Promise(resolve => {
@@ -229,6 +256,7 @@ const msg = [
       return simpleMsg.filter(msg => message.toLowerCase().trim() === msg.trigger).length === 1
     },
     response: message => {
+      message = message.content
       return new Promise(resolve => {
         var response = (simpleMsg.filter(msg => message.toLowerCase().indexOf(msg.trigger) > -1)[0] || {response: `${emojis.nani}`}).response
         if (response.length) {
@@ -242,16 +270,40 @@ const msg = [
     responseType: SEND,
     lastSentAt: 0,
     timeout: 3000
-  }
+  },
+  {
+    trigger: message => {
+      return message.toLowerCase().indexOf('bra bot') > -1
+    },
+    response: () => {
+      return new Promise(resolve => {
+        resolve('hø snakka du om mj')
+      })
+    },
+    triggerType: MESSAGE,
+    responseType: REPLY,
+    lastSentAt: 0,
+    timeout: 3000
+  },
 ]
-
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`)
   emojis = client.emojis.reduce((emojis, emoji) => {
-    emojis[emoji.name] = emoji.toString()
+    emojis[emoji.name] = emoji
     return emojis
   }, emojis)
+  emojis.thinking = '🤔'
+  emojis.one = '1⃣'
+  emojis.two = '2⃣'
+  emojis.three = '3⃣'
+  emojis.four = '4⃣'
+  emojis.five = '5⃣'
+  emojis.six = '6⃣'
+  emojis.seven = '7⃣'
+  emojis.eight = '8⃣'
+  emojis.nine = '9⃣'
+  emojis.zero = '0⃣'
   youtube = [
     `https://www.youtube.com/watch?v=eEoMI9BwHp4 ${emojis.weed} ${emojis.weed} ${emojis.weed}`,
     `https://www.youtube.com/watch?v=iPXKfGxeHIY ${emojis.weed} ${emojis.weed} ${emojis.weed}`,
@@ -291,16 +343,24 @@ client.on('ready', () => {
       response: 'takk|ye'
     },
     {
-      trigger: 'jp',
-      response: 'ins|ins dd'
+      trigger: 'jp|ka skjer',
+      response: 'ins dd|ins dd|ins dd|ins dd|ins dd|fingre dd|ins dd|ronke dd|ronke dd|ronke dd'
     },
     {
       trigger: 'ins dd',
-      response: 'ins dd'
+      response: 'ins dd|ins dd|ins dd|ins dd|ins dd|fingre dd|ins dd|ronke dd|ronke dd|ronke dd'
     },
     {
       trigger: 'ins',
-      response: 'ok'
+      response: 'ok|oki|oja|ronke du|ka e din fav porno side'
+    },
+    {
+      trigger: 'ja',
+      response: 'ok|oki|oki broshan'
+    },
+    {
+      trigger: 'koffor|kaffor|hvorfor',
+      response: 'fordi'
     },
     {
       trigger: `${emojis.nani}`,
@@ -311,17 +371,115 @@ client.on('ready', () => {
   simpleMsg = [
     // simple message-to-response mapping, compares trigger to all messages, but will only react if the message is exactly the same as the trigger
     {
-      trigger: `${emojis.nani}`,
-      response: `${emojis.nani}`
+    trigger: 'kennis',
+    response: 'rip in peace kennis som havna i fengsel'
+    },
+    {
+    trigger: `${emojis.nani}`,
+    response: `${emojis.nani}`
     },
     {
       trigger: 'hey kara',
       response: 'hey kar'
+    },
+    {
+      trigger: 'nok en gang',
+      response: 'nok en gang ser vi behovet for en legalisering av marihuana i norge i dag|nok en gang ser vi behovet for et forbud mot anime i norge i dag'
+    },
+    {
+      trigger: 'endelig',
+      response: 'endelig. få det jævla korset vekk. ønsk revolusjonen velkommen, kamerater, endelig får vi oppleve ekte kommunisme!'
+    },
+    {
+      trigger: 'mynt',
+      response: 'e det noen som har kukmarinert no mynta i det siste da eller?'
+    },
+    {
+      trigger: 'he lokt',
+      //suggestion:
+      response: 'i tissn etter å ha ha ronka'
     }
   ]
 
   reactions = [
-
+    {
+      trigger: ':hm thinking:',
+      reaction: message => {
+        message.react(emojis.thinking)
+      }
+    },
+    {
+      trigger: emojis.thinking.toString(),
+      reaction: message => {
+        message.react(emojis.thinking)
+      }
+    },
+    {
+      trigger: emojis.weed.toString(),
+      reaction: message => {
+        message.react(emojis.yeye)
+      }
+    },
+    {
+      trigger: emojis.weed.toString(),
+      reaction: message => {
+        message.react(emojis.weed)
+        .then(() => {
+          return message.react(emojis.four)
+        })
+        .then(() => {
+          return message.react(emojis.two)
+        })
+        .then(() => {
+          return message.react(emojis.zero)
+        })
+      }
+    },
+    {
+      trigger: 'elska hars',
+      reaction: message => {
+        message.react(emojis.weed)
+        .then(() => {
+          return message.react(emojis.four)
+        })
+        .then(() => {
+          return message.react(emojis.two)
+        })
+        .then(() => {
+          return message.react(emojis.zero)
+        })
+      }
+    },
+    {
+      trigger: 'smoke weed everyday',
+      reaction: message => {
+        message.react(emojis.weed)
+        .then(() => {
+          return message.react(emojis.four)
+        })
+        .then(() => {
+          return message.react(emojis.two)
+        })
+        .then(() => {
+          return message.react(emojis.zero)
+        })
+      }
+    },
+    {
+      trigger: 'fitte penga hars',
+      reaction: message => {
+        message.react(emojis.weed)
+        .then(() => {
+          return message.react(emojis.four)
+        })
+        .then(() => {
+          return message.react(emojis.two)
+        })
+        .then(() => {
+          return message.react(emojis.zero)
+        })
+      }
+    }
   ]
 })
 
@@ -330,6 +488,20 @@ client.on('message', message => {
   now = (new Date()).getTime()
   lastChannel = message.channel
   if (message.author.bot) return
+
+  /**
+   * Do reactions
+   */
+  if (reactions.filter(msg => message.content.toLowerCase().indexOf(msg.trigger) > -1).length > 0) {
+    reactions.filter(msg => message.content.toLowerCase().indexOf(msg.trigger) > -1)
+    .forEach(reaction => {
+      reaction.reaction(message)
+    })
+  }
+
+  /**
+   * Respond to messages
+   */
   msg.filter(msg => {
     return (
       msg.triggerType === MESSAGE &&
@@ -337,12 +509,16 @@ client.on('message', message => {
     )
   }).some((msg, i) => {
     if (msg.trigger(message.content)) {
-      msg.response(message.content)
+      msg.response(message)
       .then(reply => {
         if (disabled === 0 || disabled === 1) {
           if (disabled === 1) disabled = 2
           if (msg.responseType === REPLY) {
             reply = `${message.author} ${reply}`
+          } else if (msg.responseType === REACT) {
+            return new Promise(resolve => {
+              resolve({}) // empty promises
+            })
           }
           return message.channel.send(reply)
         }
