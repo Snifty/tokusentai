@@ -106,7 +106,7 @@ const msg = [
     timeout: 30000
   },
   {
-    //mb this fit more here
+  //mb this fit more here
     trigger: message => {
       return (
         message.toLowerCase().indexOf('runescape') > -1 ||
