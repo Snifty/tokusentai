@@ -70,6 +70,7 @@ const msg = [
     trigger: message => {
       return (
         message.indexOf('REE') > -1 ||
+        message.indexOf('FAEN') < -1 ||
         message.toLowerCase().indexOf('grr') > -1 ||
         message.toLowerCase().indexOf('jesus fucking christ') > -1 ||
         (
@@ -97,6 +98,30 @@ const msg = [
       message = message.content
       return new Promise(resolve => {
         resolve(`Fitte ${emojis.yeye}`)
+      })
+    },
+    triggerType: MESSAGE,
+    responseType: SEND,
+    lastSentAt: 0,
+    timeout: 30000
+  },
+  {
+  //mb this fit more here
+    trigger: message => {
+      return (
+        message.toLowerCase().indexOf('runescape') > -1 ||
+        message.toLowerCase().indexOf(' rs ') > -1 ||
+        message.toLowerCase().indexOf(' rs') > -1 ||
+        message.toLowerCase().indexOf(' osrs ') > -1 ||
+        message.toLowerCase().indexOf(' osrs') > -1 ||
+        message.toLowerCase().indexOf(' rs3 ') > -1 ||
+        message.toLowerCase().indexOf(' rs3') > -1 
+      )
+      },
+    response: message => {
+      message = message.content
+      return new Promise(resolve => {
+        resolve(`Bad Game! Run! Escape!`)
       })
     },
     triggerType: MESSAGE,
@@ -254,8 +279,12 @@ const msg = [
       return new Promise(resolve => {
         resolve('hø snakka du om mj')
       })
-    }
-  }
+    },
+    triggerType: MESSAGE,
+    responseType: REPLY,
+    lastSentAt: 0,
+    timeout: 3000
+  },
 ]
 
 client.on('ready', () => {
@@ -264,6 +293,7 @@ client.on('ready', () => {
     emojis[emoji.name] = emoji
     return emojis
   }, emojis)
+  emojis.thinking = '🤔'
   emojis.one = '1⃣'
   emojis.two = '2⃣'
   emojis.three = '3⃣'
@@ -313,7 +343,7 @@ client.on('ready', () => {
       response: 'takk|ye'
     },
     {
-      trigger: 'jp',
+      trigger: 'jp|ka skjer',
       response: 'ins dd|ins dd|ins dd|ins dd|ins dd|fingre dd|ins dd|ronke dd|ronke dd|ronke dd'
     },
     {
@@ -325,6 +355,14 @@ client.on('ready', () => {
       response: 'ok|oki|oja|ronke du|ka e din fav porno side'
     },
     {
+      trigger: 'ja',
+      response: 'ok|oki|oki broshan'
+    },
+    {
+      trigger: 'koffor|kaffor|hvorfor',
+      response: 'fordi'
+    },
+    {
       trigger: `${emojis.nani}`,
       response: `${emojis.nani}`
     }
@@ -333,8 +371,12 @@ client.on('ready', () => {
   simpleMsg = [
     // simple message-to-response mapping, compares trigger to all messages, but will only react if the message is exactly the same as the trigger
     {
-      trigger: `${emojis.nani}`,
-      response: `${emojis.nani}`
+    trigger: 'kennis',
+    response: 'rip in peace kennis som havna i fengsel'
+    },
+    {
+    trigger: `${emojis.nani}`,
+    response: `${emojis.nani}`
     },
     {
       trigger: 'hey kara',
@@ -353,6 +395,10 @@ client.on('ready', () => {
       response: 'e det noen som har kukmarinert no mynta i det siste da eller?'
     },
     {
+      trigger: 'he lokt',
+      response: 'i tissn etter å ha ha ronka'
+    },
+    {
       trigger: 'runescape',
       response: 'Bad Game! Run! Escape!'
     },
@@ -364,7 +410,19 @@ client.on('ready', () => {
 
   reactions = [
     {
-      trigger: emojis.yeye.toString(),
+      trigger: ':hm thinking:',
+      reaction: message => {
+        message.react(emojis.thinking)
+      }
+    },
+    {
+      trigger: emojis.thinking.toString(),
+      reaction: message => {
+        message.react(emojis.thinking)
+      }
+    },
+    {
+      trigger: emojis.weed.toString(),
       reaction: message => {
         message.react(emojis.yeye)
       }
