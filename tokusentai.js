@@ -11,34 +11,40 @@ const REACT = 2
 
 const MESSAGE = 0
 const TIME = 1
-const INTERVAL = 60000
+const INTERVAL = 20000
 
 var disabled = 0 // 0 => not disabled, 1 => will disable after this message, 2 => disabled
 var now = (new Date()).getTime()
 
 var emojis = {}
-var youtube = []
 var lastChannel
 
 var simpleMsgReply = []
 var simpleMsg = []
 var reactions = []
+var randomQuestions = []
 
 const msg = [
   {
     trigger: () => {
-      return (Math.floor(Math.random() * 1000) + 1) === 42
+      let rand = Math.floor(Math.random() * 30) + 1
+      return (rand === 3)
     },
-    response: message => {
-      message = message.content
+    response: () => {
+      let user = client.users.filter(user => user.id !== '1' && user.id !== process.env.CLIENT_ID).random()
+      console.log('random question success')
       return new Promise(resolve => {
-        resolve('<@!132867430937526272> leve du')
+        if (user.id == '132867430937526272') { // eslint-disable-line eqeqeq
+          resolve(`<@${user.id}> leve du`) // henning hehe
+        } else {
+          resolve(`<@${user.id}> ${randomQuestions[Math.floor(Math.random() * randomQuestions.length)]}`)
+        }
       })
     },
-    triggerType: MESSAGE,
+    triggerType: TIME,
     responseType: SEND,
-    lastSentAt: now,
-    timeout: 80000000
+    lastSentAt: 0,
+    timeout: 30000
   },
   {
     trigger: message => {
@@ -74,7 +80,7 @@ const msg = [
         message.toLowerCase().indexOf('grr') > -1 ||
         message.toLowerCase().indexOf('jesus fucking christ') > -1 ||
         (
-          (((message.length - message.replace(/[A-ZÆØÅ]/, '').length) / message.length) > 0.45) &&
+          (((message.length - message.replace(/[A-ZÆØÅ]/g, '').length) / message.length) > 0.45) &&
           message.length > 10
         )
       )
@@ -106,7 +112,7 @@ const msg = [
     timeout: 30000
   },
   {
-  //mb this fit more here
+  // mb this fit more here
     trigger: message => {
       return (
         message.toLowerCase().indexOf('runescape') > -1 ||
@@ -115,11 +121,10 @@ const msg = [
         message.toLowerCase().indexOf(' osrs ') > -1 ||
         message.toLowerCase().indexOf(' osrs') > -1 ||
         message.toLowerCase().indexOf(' rs3 ') > -1 ||
-        message.toLowerCase().indexOf(' rs3') > -1 
+        message.toLowerCase().indexOf(' rs3') > -1
       )
-      },
+    },
     response: message => {
-      message = message.content
       return new Promise(resolve => {
         resolve(`Bad Game! Run! Escape!`)
       })
@@ -284,7 +289,7 @@ const msg = [
     responseType: REPLY,
     lastSentAt: 0,
     timeout: 3000
-  },
+  }
 ]
 
 client.on('ready', () => {
@@ -304,33 +309,6 @@ client.on('ready', () => {
   emojis.eight = '8⃣'
   emojis.nine = '9⃣'
   emojis.zero = '0⃣'
-  youtube = [
-    `https://www.youtube.com/watch?v=eEoMI9BwHp4 ${emojis.weed} ${emojis.weed} ${emojis.weed}`,
-    `https://www.youtube.com/watch?v=iPXKfGxeHIY ${emojis.weed} ${emojis.weed} ${emojis.weed}`,
-    `https://www.youtube.com/watch?v=lxptFSJJ14Y ${emojis.weed} ${emojis.weed} ${emojis.weed}`,
-    `https://www.youtube.com/watch?v=pNdO95XfJ8I ${emojis.weed} ${emojis.weed} ${emojis.weed}`,
-    `https://www.youtube.com/watch?v=Gmf-TW5rWiY ${emojis.weed} ${emojis.weed} ${emojis.weed}`,
-    `https://www.youtube.com/watch?v=W5Jj6iTY1X0 ${emojis.weed} ${emojis.weed} ${emojis.weed}`,
-    `https://www.youtube.com/watch?v=Wrr7JwGImvs ${emojis.weed} ${emojis.weed} ${emojis.weed}`,
-    `https://www.youtube.com/watch?v=WznC9N5r-bk ${emojis.weed} ${emojis.weed} ${emojis.weed}`,
-    `https://www.youtube.com/watch?v=XXlMwL5MDqw ${emojis.weed} ${emojis.weed} ${emojis.weed}`,
-    `https://www.youtube.com/watch?v=IwLi67b5tjo ${emojis.weed} ${emojis.weed} ${emojis.weed}`,
-    `https://www.youtube.com/watch?v=UuLXfju0i_I ${emojis.weed} ${emojis.weed} ${emojis.weed}`,
-    `https://www.youtube.com/watch?v=ZqN4J3GGJ8M ggoctg ${emojis.yeye}`,
-    `https://www.youtube.com/watch?v=56yPhgGK2ek ggoctg ${emojis.yeye}`,
-    `https://www.youtube.com/watch?v=qvqvCRbNS0s ${emojis.weed} ${emojis.weed} ${emojis.weed}`,
-    `https://www.youtube.com/watch?v=mxFifH8yrds ${emojis.weed} ${emojis.weed} ${emojis.weed}`,
-    `https://www.youtube.com/watch?v=cfrMOti_V-I ${emojis.weed} ${emojis.weed} ${emojis.weed}`,
-    `https://www.youtube.com/watch?v=axhiO4SBBjo ${emojis.weed} ${emojis.weed} ${emojis.weed}`,
-    `https://www.youtube.com/watch?v=d2As4r6XGog ${emojis.weed} ${emojis.weed} ${emojis.weed}`,
-    `https://www.youtube.com/watch?v=SB7UVftunJI ${emojis.weed} ${emojis.weed} ${emojis.weed}`,
-    `https://www.youtube.com/watch?v=y1-5MAMC3Og ${emojis.weed} ${emojis.weed} ${emojis.weed}`,
-    `https://www.youtube.com/watch?v=-mrmExPzLs4 fitte ${emojis.yeye}`,
-    `https://www.youtube.com/watch?v=xc8KdyU8N8Q ${emojis.weed} ${emojis.weed} ${emojis.weed}`,
-    `https://www.youtube.com/watch?v=rnS-05XoXs4 ${emojis.weed} ${emojis.weed} ${emojis.weed}`,
-    `https://www.youtube.com/watch?v=sifVwz5Nguc ${emojis.weed} ${emojis.weed} ${emojis.weed}`,
-    `https://www.youtube.com/watch?v=o2TO5atI4rU ${emojis.weed} ${emojis.weed} ${emojis.weed}`
-  ]
 
   simpleMsgReply = [
     // simple message-to-response mapping, all messages has to be prefixed with @bot (in chat) / <@${process.env.CLIENT_ID}> (in code)
@@ -360,7 +338,15 @@ client.on('ready', () => {
     },
     {
       trigger: 'koffor|kaffor|hvorfor',
-      response: 'fordi'
+      response: 'fordi|derfor'
+    },
+    {
+      trigger: 'nei nekta',
+      response: 'tvinga dj'
+    },
+    {
+      trigger: 'ok|oki|k',
+      response: ':slight_smile:'
     },
     {
       trigger: `${emojis.nani}`,
@@ -371,12 +357,12 @@ client.on('ready', () => {
   simpleMsg = [
     // simple message-to-response mapping, compares trigger to all messages, but will only react if the message is exactly the same as the trigger
     {
-    trigger: 'kennis',
-    response: 'rip in peace kennis som havna i fengsel'
+      trigger: 'kennis',
+      response: 'rip in peace kennis som havna i fengsel'
     },
     {
-    trigger: `${emojis.nani}`,
-    response: `${emojis.nani}`
+      trigger: `${emojis.nani}`,
+      response: `${emojis.nani}`
     },
     {
       trigger: 'hey kara',
@@ -399,12 +385,20 @@ client.on('ready', () => {
       response: 'i tissn etter å ha ha ronka'
     },
     {
-      trigger: 'runescape',
-      response: 'Bad Game! Run! Escape!'
-    },
-    {
       trigger: 'he lokt',
       response: 'lokt i tissn'
+    },
+    {
+      trigger: 'hade a',
+      response: 'hade a'
+    },
+    {
+      trigger: 'nei',
+      response: 'eigd'
+    },
+    {
+      trigger: 'eigd',
+      response: 'eigd'
     }
   ]
 
@@ -439,6 +433,24 @@ client.on('ready', () => {
         })
         .then(() => {
           return message.react(emojis.zero)
+        })
+      }
+    },
+    {
+      trigger: 'kuk',
+      reaction: message => {
+        message.react(emojis.p1)
+        .then(() => {
+          return message.react(emojis.p2)
+        })
+        .then(() => {
+          return message.react(emojis.p3)
+        })
+        .then(() => {
+          return message.react(emojis.sd)
+        })
+        .then(() => {
+          return message.react(emojis.jiss)
         })
       }
     },
@@ -487,6 +499,15 @@ client.on('ready', () => {
         })
       }
     }
+  ]
+  randomQuestions = [
+    'ronke du',
+    'leve du',
+    'hey',
+    'jp',
+    'kor d går',
+    'hehe',
+    'har du kuk eller fitte'
   ]
 })
 
