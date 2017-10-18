@@ -23,20 +23,24 @@ var simpleMsgReply = []
 var simpleMsg = []
 var reactions = []
 var randomQuestions = []
-
 const msg = [
   {
-    trigger: message => {
+    trigger: () => {
       let date = new Date()
       return (
         date.getHours() >= 12 &&
         date.getHours() < 21 
-        )
-        let rand = Math.floor(Math.random() * 30) + 1
-          return (rand === 3)
+      ) && (
+        Math.floor(Math.random() * 100) + 1 === 3
+      )
     },
     response: () => {
-      let user = client.users.filter(user => user.id !== '1' && user.id !== process.env.CLIENT_ID).random()
+      let user = Array.from(client.users.values()).filter(user => user.id !== '1' && user.id !== process.env.CLIENT_ID).filter(user => {
+        return sentIds.indexOf(user.id) === -1
+      })
+      user = user[Math.floor(Math.random() * user.length)]
+
+      sentIds.push(user.id)
       console.log('random question success')
       return new Promise(resolve => {
         if (user.id == '132867430937526272') { // eslint-disable-line eqeqeq
