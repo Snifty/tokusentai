@@ -11,7 +11,7 @@ const REACT = 2
 
 const MESSAGE = 0
 const TIME = 1
-const INTERVAL = 20000
+const INTERVAL = 60000
 
 var disabled = 0 // 0 => not disabled, 1 => will disable after this message, 2 => disabled
 var now = (new Date()).getTime()
@@ -23,15 +23,21 @@ var simpleMsgReply = []
 var simpleMsg = []
 var reactions = []
 var randomQuestions = []
+var sentIds = []
 
 const msg = [
   {
     trigger: () => {
-      let rand = Math.floor(Math.random() * 30) + 1
+      let rand = Math.floor(Math.random() * 100) + 1
       return (rand === 3)
     },
     response: () => {
-      let user = client.users.filter(user => user.id !== '1' && user.id !== process.env.CLIENT_ID).random()
+      let user = Array.from(client.users.values()).filter(user => user.id !== '1' && user.id !== process.env.CLIENT_ID).filter(user => {
+        return sentIds.indexOf(user.id) === -1
+      })
+      user = user[Math.floor(Math.random() * user.lenght)]
+
+      sentIds.push(user.id)
       console.log('random question success')
       return new Promise(resolve => {
         if (user.id == '132867430937526272') { // eslint-disable-line eqeqeq
