@@ -26,9 +26,14 @@ var randomQuestions = []
 
 const msg = [
   {
-    trigger: () => {
-      let rand = Math.floor(Math.random() * 30) + 1
-      return (rand === 3)
+    trigger: message => {
+      let date = new Date()
+      return (
+        date.getHours() >= 12 &&
+        date.getHours() < 21 
+        )
+        let rand = Math.floor(Math.random() * 30) + 1
+          return (rand === 3)
     },
     response: () => {
       let user = client.users.filter(user => user.id !== '1' && user.id !== process.env.CLIENT_ID).random()
@@ -186,6 +191,28 @@ const msg = [
     response: () => {
       return new Promise(resolve => {
         resolve('gm')
+      })
+    },
+    triggerType: MESSAGE,
+    responseType: SEND,
+    lastSentAt: 0,
+    timeout: 3600000
+  },
+  {
+    trigger: message => {
+      let date = new Date()
+      return (
+        date.getHours() > 21 &&
+        date.getHours() < 6 &&
+        (
+          message.toLowerCase() === 'gn' ||
+          message.toLowerCase() === `<@${process.env.CLIENT_ID}> gn`
+        )
+      )
+    },
+    response: () => {
+      return new Promise(resolve => {
+        resolve('gn')
       })
     },
     triggerType: MESSAGE,
